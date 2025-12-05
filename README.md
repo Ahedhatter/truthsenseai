@@ -1,73 +1,144 @@
-# Welcome to your Lovable project
+TruthSense AI — Fake News Headline Verifier
 
-## Project info
+An AI-powered tool for quickly analyzing whether a news headline may be misleading, exaggerated, or trustworthy.
 
-**URL**: https://lovable.dev/projects/71368ea8-d95b-4067-a85d-b0e5fd34fb39
+Live Demo: https://truthsenseai.com
 
-## How can I edit this code?
+(Replace with your real domain or Vercel URL if different)
 
-There are several ways of editing your application.
+Overview
 
-**Use Lovable**
+TruthSense AI is a lightweight web-based application designed to help users quickly evaluate the credibility of news headlines.
+Users paste any headline (or short text), and the system generates:
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/71368ea8-d95b-4067-a85d-b0e5fd34fb39) and start prompting.
+A Likely Fake or Likely Trustworthy classification
 
-Changes made via Lovable will be committed automatically to this repo.
+A confidence score
 
-**Use your preferred IDE**
+A short explanation
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+This prototype is built for academic demonstration and does not perform factual verification. It analyzes linguistic patterns and provides a heuristic assessment.
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+Project Structure
+truthsense-ai/
+│
+├── backend/
+│   └── fakeNewsDetector.ts      # Simple backend logic (local AI engine)
+│
+├── src/
+│   ├── pages/
+│   │   └── Index.tsx            # Main UI page calling the backend function
+│   ├── components/              # UI components (ShadCN)
+│   ├── App.tsx
+│   ├── main.tsx
+│   └── index.css
+│
+├── public/
+│   └── assets, icons, metadata
+│
+├── package.json                 # Project dependencies
+├── vite.config.ts               # Vite configuration
+├── tailwind.config.ts           # Tailwind settings
+└── README.md                    # This file
 
-Follow these steps:
+Backend Logic (Local Engine)
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+The backend is a small TypeScript module located at:
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+backend/fakeNewsDetector.ts
 
-# Step 3: Install the necessary dependencies.
-npm i
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+It currently uses randomized but pattern-based logic for demonstration.
+In a real-world implementation, this file would be replaced by:
+
+A trained ML model
+
+A FastAPI or Node.js API
+
+External fact-checking intelligence
+
+This structure makes upgrading simple.
+
+Tech Stack
+
+React + TypeScript (UI)
+
+Vite (build system)
+
+TailwindCSS + ShadCN UI (styling & components)
+
+Local TS backend file (prototype detection engine)
+
+Vercel (deployment)
+
+Setup & Development
+1. Install dependencies
+
+Make sure you have Node 20+ installed, then run:
+
+npm install
+
+2. Run the development server
 npm run dev
-```
 
-**Edit a file directly in GitHub**
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+This starts the project locally at:
 
-**Use GitHub Codespaces**
+http://localhost:5173
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+Deployment
 
-## What technologies are used for this project?
+The project is deployed on Vercel.
 
-This project is built with:
+To redeploy:
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+Push new commits to GitHub:
 
-## How can I deploy this project?
+git add .
+git commit -m "Update"
+git push
 
-Simply open [Lovable](https://lovable.dev/projects/71368ea8-d95b-4067-a85d-b0e5fd34fb39) and click on Share -> Publish.
 
-## Can I connect a custom domain to my Lovable project?
+Vercel automatically rebuilds and deploys the site.
 
-Yes, you can!
+Limitations
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+TruthSense AI is a prototype and:
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+Does not check real facts or confirm truthfulness.
+
+Does not query external sources.
+
+Uses simplified logic for academic demonstration.
+
+Its purpose is to showcase:
+
+UI/UX design
+
+AI concept workflow
+
+Integration between frontend and backend logic
+
+Future Enhancements
+
+Replace rule-based engine with real ML model (Python/Node).
+
+Add API with real-time classification.
+
+Integrate dataset training for accuracy.
+
+Provide probability distributions and visual explanations.
+
+Add browser extension version of the detector.
+
+Team
+
+TruthSense AI was created as a university software project by:
+
+Ahed Hattar
+
+[Add team members here]
+
+License
+
+This project is for educational and non-commercial use.
