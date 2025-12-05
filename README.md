@@ -2,7 +2,7 @@ TruthSense AI — Fake News Headline Verifier
 
 An AI-powered tool for quickly analyzing whether a news headline may be misleading, exaggerated, or trustworthy.
 
-Live Demo: https://truthsenseai.com
+Live Demo: https://truthsense.online
 
 (Replace with your real domain or Vercel URL if different)
 
