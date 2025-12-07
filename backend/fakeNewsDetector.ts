@@ -9,17 +9,21 @@ export interface DetectionResult {
 }
 
 /**
- * Rule-based detector used in the TruthSense AI prototype.
- * It does NOT verify facts against the real world, but analyzes:
- * - impossible / exaggerated claims
- * - clickbait phrases
- * - emotional language and tone
- * - presence of more neutral, source-based wording
+ * Fully deterministic rule-based backend.
+ * 100% consistent: same input always produces the same output.
  *
- * It then builds a simple score and explanation.
+ * Works by assigning fixed weights to:
+ * - impossible claims
+ * - clickbait terms
+ * - sensational words
+ * - punctuation patterns
+ * - trustworthy cues (research, universities, official sources)
+ *
+ * No randomness. No probability noise.
  */
 export function detectHeadline(headline: string): DetectionResult {
   const original = headline.trim();
+  const lower = original.toLowerCase();
 
   if (!original) {
     return {
@@ -29,56 +33,45 @@ export function detectHeadline(headline: string): DetectionResult {
     };
   }
 
-  const text = original.toLowerCase();
+  // -------- RULE SET DEFINITIONS --------
 
-  // --- SPECIAL CASE: our example headline should ALWAYS be flagged fake ---
-  if (
-    text.includes("coffee") &&
-    (text.includes("immortal") || text.includes("live forever"))
-  ) {
-    return {
-      label: "fake",
-      confidence: 94,
-      explanation:
-        "The headline combines a common everyday product with an impossible outcome (immortality). Such claims strongly match patterns of misleading or sensational content.",
-    };
-  }
-
-  // Keywords and patterns
   const impossibleClaims = [
     "immortal",
     "immortality",
     "live forever",
     "cure cancer",
     "cures all diseases",
-    "100% guarantee",
     "time travel",
     "teleportation",
-    "resurrect the dead",
+    "reverse aging",
+    "resurrect",
+    "brings dead back",
+    "weather control",
+    "invincible",
   ];
 
-  const strongClickbaitPhrases = [
+  const strongClickbait = [
     "you won't believe",
     "shocking",
-    "this will change your life",
-    "what happens next",
-    "goes viral",
+    "explosive",
     "mind-blowing",
     "unbelievable",
-    "blows your mind",
+    "this will change your life",
+    "goes viral",
+    "secret method",
     "top secret",
     "hidden truth",
+    "what happens next",
   ];
 
   const sensationalWords = [
     "miracle",
     "outrageous",
-    "explosive",
     "insane",
-    "crazy",
     "jaw-dropping",
     "scandal",
     "exposed",
+    "insider reveals",
   ];
 
   const absoluteLanguage = [
@@ -89,152 +82,121 @@ export function detectHeadline(headline: string): DetectionResult {
     "proves once and for all",
   ];
 
-  const listiclePatterns = ["reasons why", "things you need to know", "tips to"];
-
   const trustworthyCues = [
+    "study",
+    "research",
     "according to",
+    "report",
+    "analysis",
+    "university",
+    "scientists at",
     "researchers at",
-    "study published in",
-    "report from",
+    "published in",
     "official data",
     "peer-reviewed",
-    "university of",
     "in a journal",
   ];
+
+  // -------- SCORING --------
 
   let fakeScore = 0;
   let trustScore = 0;
   const reasons: string[] = [];
 
-  // Count matches and record reasons
-  if (containsAny(text, impossibleClaims)) {
+  // Impossible scientific claims (heavy weight)
+  if (containsAny(lower, impossibleClaims)) {
+    fakeScore += 5;
+    reasons.push("Mentions impossible or pseudoscientific claims.");
+  }
+
+  // Strong clickbait (high weight)
+  if (containsAny(lower, strongClickbait)) {
+    fakeScore += 4;
+    reasons.push("Uses strong clickbait language associated with fake headlines.");
+  }
+
+  // Sensational emotional tone
+  if (containsAny(lower, sensationalWords)) {
     fakeScore += 3;
-    reasons.push(
-      "The headline mentions outcomes that are biologically or physically impossible (e.g., immortality or total cures)."
-    );
+    reasons.push("Contains sensational or emotionally-loaded words.");
   }
 
-  if (containsAny(text, strongClickbaitPhrases)) {
+  // Absolute language (exaggerated)
+  if (containsAny(lower, absoluteLanguage)) {
+    fakeScore += 2;
+    reasons.push("Uses absolute language often seen in misleading content.");
+  }
+
+  // Excessive punctuation
+  const exclamations = (original.match(/!/g) || []).length;
+  if (exclamations >= 2) {
     fakeScore += 3;
-    reasons.push(
-      "It uses strong clickbait phrases often associated with misleading headlines."
-    );
-  }
-
-  if (containsAny(text, sensationalWords)) {
-    fakeScore += 2;
-    reasons.push(
-      "The language is highly emotional or sensational, which is typical of misleading content."
-    );
-  }
-
-  if (containsAny(text, absoluteLanguage)) {
-    fakeScore += 1.5;
-    reasons.push(
-      "Absolute language is used, which can signal overconfident or exaggerated claims."
-    );
-  }
-
-  if (containsAny(text, listiclePatterns)) {
+    reasons.push("Contains multiple exclamation marks, indicating exaggeration.");
+  } else if (exclamations === 1) {
     fakeScore += 1;
-    reasons.push(
-      "The headline resembles a listicle pattern, which is often used in clickbait formats."
-    );
+    reasons.push("Contains an exclamation mark, a common indicator of strong sensationalism.");
   }
 
-  // Punctuation and formatting clues
-  const exclamationCount = (original.match(/!/g) || []).length;
-  if (exclamationCount >= 2) {
-    fakeScore += 2;
-    reasons.push(
-      "Multiple exclamation marks suggest strong sensationalism and possible clickbait."
-    );
-  } else if (exclamationCount === 1) {
-    fakeScore += 1;
-    reasons.push(
-      "The exclamation mark increases the emotional tone of the headline."
-    );
-  }
-
-  // All caps words
+  // ALL CAPS words
   const words = original.split(/\s+/);
-  const allCapsWords = words.filter(
-    (w) => w.length > 3 && w === w.toUpperCase()
-  );
-  if (allCapsWords.length >= 2) {
-    fakeScore += 2;
-    reasons.push(
-      "Using several ALL-CAPS words is a common pattern in misleading or spammy headlines."
-    );
+  const allCaps = words.filter((w) => w.length >= 4 && w === w.toUpperCase());
+  if (allCaps.length >= 2) {
+    fakeScore += 3;
+    reasons.push("Contains multiple ALL-CAPS words used to grab attention.");
   }
 
-  // Very short or very long
+  // Trust indicators
+  if (containsAny(lower, trustworthyCues)) {
+    trustScore += 4;
+    reasons.push("References research, data, universities, or official sources.");
+  }
+
+  // Length analysis
+  if (words.length > 14) {
+    trustScore += 1;
+  }
+
   if (words.length < 5) {
     fakeScore += 1;
-    reasons.push("The headline is very short, which can reduce context and clarity.");
-  } else if (words.length > 18) {
-    trustScore += 0.5;
-    reasons.push(
-      "The headline is relatively detailed, which can sometimes indicate more informative reporting."
-    );
   }
 
-  // Trustworthy cues
-  if (containsAny(text, trustworthyCues)) {
-    trustScore += 2;
-    reasons.push(
-      "The headline references sources or research, which is more typical of balanced reporting."
-    );
-  }
+  // -------- FINAL LABEL DECISION --------
 
-  // Neutral / scientific structure can slightly help trust
-  if (/\bstudy\b|\bresearch\b|\bscientists\b/.test(text)) {
-    trustScore += 1;
-    reasons.push(
-      "The headline mentions research or scientists, which may indicate an attempt to present evidence."
-    );
-  }
-
-  // Final scoring and label decision
-  const totalScore = fakeScore - trustScore;
+  const finalScore = fakeScore - trustScore;
 
   let label: HeadlineLabel;
   let confidence: number;
 
-  if (totalScore >= 3.5) {
+  // Strong fake (> 3 points)
+  if (finalScore >= 3) {
     label = "fake";
-    // Higher fakeScore → higher confidence
-    confidence = Math.min(95, 70 + fakeScore * 5);
-  } else if (totalScore <= 0) {
+    confidence = 85 + Math.min(fakeScore * 2, 10); // caps at 95
+  }
+  // Strong trustworthy (< -2)
+  else if (finalScore <= -2) {
     label = "trustworthy";
-    // Higher trustScore → higher confidence
-    confidence = Math.min(92, 65 + trustScore * 6);
-  } else {
-    // Borderline case; lean toward fake but with moderate confidence
-    label = "fake";
-    confidence = 65 + totalScore * 5; // ~65–80
-    reasons.push(
-      "Some signals suggest sensationalism, but the evidence is mixed, so the classification is less certain."
-    );
+    confidence = 80 + Math.min(trustScore * 2, 15); // caps at 95
+  }
+  // Borderline (very rare)
+  else {
+    label = finalScore > 0 ? "fake" : "trustworthy";
+    confidence = 70 + Math.abs(finalScore) * 5;
   }
 
-  // Build explanation text
-  let explanation: string;
-  if (reasons.length === 0) {
-    explanation =
-      "The headline does not strongly match typical patterns of either clickbait or neutral reporting, so the system estimated its credibility based on general tone and structure.";
-  } else {
-    explanation = reasons.join(" ");
-  }
+  // Explanation formation
+  const explanation =
+    reasons.length > 0
+      ? reasons.join(" ")
+      : "The headline appears neutral and does not match common patterns of misleading or sensational content.";
 
   return {
     label,
-    confidence: Math.round(confidence),
+    confidence: Math.min(95, Math.round(confidence)),
     explanation,
   };
 }
 
-// Helper: check if any keyword appears in the text
-function containsAny(text: string, keywords: string[]): boolean {
-  return keywords.some((k) => text.includes(k));
+// Utility function
+function containsAny(text: string, arr: string[]): boolean {
+  return arr.some((item) => text.includes(item));
 }
