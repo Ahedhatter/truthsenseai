@@ -14,17 +14,17 @@ const Index = () => {
   const exampleHeadline = "Scientists confirm drinking coffee makes you immortal, study claims";
 
   const handleAnalyze = () => {
-  if (!headline.trim()) return;
+    if (!headline.trim()) return;
 
-  setIsLoading(true);
-  setResult(null);
+    setIsLoading(true);
+    setResult(null);
 
-  setTimeout(() => {
-    const analysis = detectHeadline(headline);
-    setResult(analysis);
-    setIsLoading(false);
-  }, 800); // small delay for nicer UX
-};
+    setTimeout(() => {
+      const analysis = detectHeadline(headline);
+      setResult(analysis);
+      setIsLoading(false);
+    }, 800); // small delay for nicer UX
+  };
 
   const handleExample = () => {
     setHeadline(exampleHeadline);
@@ -54,7 +54,6 @@ const Index = () => {
     { icon: Share2, label: "Journalists checking headlines" },
     { icon: Users, label: "Everyday users fact-checking" },
   ];
-
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
@@ -94,12 +93,12 @@ const Index = () => {
                 <Zap className="w-3 h-3 mr-1.5" />
                 AI-Powered Fake News Detection
               </div>
-              
+
               <h1 className="section-title leading-tight">
                 Trust headlines again with{" "}
                 <span className="gradient-text">TruthSense AI</span>
               </h1>
-              
+
               <p className="section-subtitle">
                 Fake headlines are everywhere. TruthSense AI analyzes news titles or article links and estimates whether they are likely misleading or trustworthy using artificial intelligence.
               </p>
@@ -155,12 +154,14 @@ const Index = () => {
                           </>
                         )}
                       </button>
+
+                      {/* Updated button text ONLY */}
                       <button
                         id="example-button"
                         onClick={handleExample}
                         className="px-4 py-3 rounded-xl border border-border hover:bg-muted transition-all text-sm font-medium text-muted-foreground hover:text-foreground"
                       >
-                        Use Example
+                        BREAKING: Scientists claim a SECRET device can teleport anyone instantly and make them IMMORTAL!!!
                       </button>
                     </div>
                   </div>
@@ -179,13 +180,15 @@ const Index = () => {
                       </div>
                     </div>
 
-                    <div className={`p-5 rounded-xl border transition-all ${
-                      result
-                        ? result.label === "fake"
-                          ? "bg-destructive/5 border-destructive/20"
-                          : "bg-success/5 border-success/20"
-                        : "bg-muted/50 border-border"
-                    }`}>
+                    <div
+                      className={`p-5 rounded-xl border transition-all ${
+                        result
+                          ? result.label === "fake"
+                            ? "bg-destructive/5 border-destructive/20"
+                            : "bg-success/5 border-success/20"
+                          : "bg-muted/50 border-border"
+                      }`}
+                    >
                       {result ? (
                         <div className="space-y-3">
                           <div className="flex items-center gap-3">
@@ -204,7 +207,10 @@ const Index = () => {
                             </span>
                           </div>
                           <p className="text-sm text-muted-foreground">
-                            Confidence: <span id="confidence-score" className="font-semibold text-foreground">{result.confidence}%</span>
+                            Confidence:{" "}
+                            <span id="confidence-score" className="font-semibold text-foreground">
+                              {result.confidence}%
+                            </span>
                           </p>
                           <p id="result-explanation" className="text-sm text-muted-foreground leading-relaxed">
                             {result.explanation}
@@ -233,7 +239,9 @@ const Index = () => {
                 <div className="w-12 h-12 mx-auto mb-4 rounded-xl gradient-bg/10 flex items-center justify-center group-hover:scale-110 transition-transform">
                   <stat.icon className="w-6 h-6 text-primary" />
                 </div>
-                <div className="text-3xl md:text-4xl font-bold gradient-text mb-2">{stat.value}</div>
+                <div className="text-3xl md:text-4xl font-bold gradient-text mb-2">
+                  {stat.value}
+                </div>
                 <div className="text-sm text-muted-foreground">{stat.label}</div>
               </div>
             ))}
@@ -287,8 +295,12 @@ const Index = () => {
                   <BarChart3 className="w-6 h-6 text-primary-foreground" />
                 </div>
                 <div>
-                  <p className="text-lg font-semibold mb-2">"False news stories are 70% more likely to be retweeted than true stories."</p>
-                  <p className="text-sm text-muted-foreground">— MIT Study on the Spread of False Information</p>
+                  <p className="text-lg font-semibold mb-2">
+                    "False news stories are 70% more likely to be retweeted than true stories."
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    — MIT Study on the Spread of False Information
+                  </p>
                 </div>
               </div>
             </div>
@@ -337,7 +349,6 @@ const Index = () => {
           </div>
         </div>
       </section>
-
 
       {/* Footer */}
       <footer className="py-12 border-t border-border relative">
